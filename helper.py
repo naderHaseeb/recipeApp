@@ -12,7 +12,7 @@ def random_meal():
 
 def search_meal(meal_name):
 
-    df= pd.read_csv('Data/meals_recipes.csv')
+    df= pd.read_csv('recipeApp/Data/meals_recipes.csv')
     result = df[df['name'] == meal_name]
     return result
 
