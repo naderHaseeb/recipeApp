@@ -1,49 +1,55 @@
 import pandas as pd
 
+CSV_FILE = "Data/meals_recipes.csv"
+
 
 def random_meal():
-    '''
-    This funtion return a random meal
-    return is a dataframe
-    '''
-    df = pd.read_csv('meals_recipes.csv')
-    randommeal=df.sample()
+    df = pd.read_csv(CSV_FILE)
+    randommeal = df.sample()
     return randommeal
 
-def search_meal(meal_name):
 
-    df= pd.read_csv('recipeApp/Data/meals_recipes.csv')
-    result = df[df['name'] == meal_name]
+def search_meal(meal_name):
+    df = pd.read_csv(CSV_FILE)
+    result = df[df["name"] == meal_name]
     return result
 
-def search_mealbying(ingredient_name):
 
-    df= pd.read_csv('meals_recipes.csv')
-    condition = df['ingredients'].str.contains(ingredient_name,case=False)
-    meals= df[condition]
+def search_mealbying(ingredient_name):
+    df = pd.read_csv(CSV_FILE)
+    condition = df["ingredients"].str.contains(ingredient_name, case=False, na=False)
+    meals = df[condition]
     return meals
 
+
 def save_meal(title, txt_ingredients, ptime, txt_instructions, difficulty, category, rating):
-    df= pd.read_csv('meals_recipes.csv')
-    newrow=pd.DataFrame([{'name':title, 
-                      'ingredients':txt_ingredients,
-                     'prep_time':ptime,
-                     'instructions':txt_instructions,
-                     'difficulty':difficulty,
-                     'category':category,
-                     'rating':rating}])
-    df=pd.concat([df,newrow])
-    df.to_csv('meals_recipes.csv')
+    df = pd.read_csv(CSV_FILE)
+
+    newrow = pd.DataFrame([{
+        "name": title,
+        "ingredients": txt_ingredients,
+        "prep_time": ptime,
+        "instructions": txt_instructions,
+        "difficulty": difficulty,
+        "category": category,
+        "rating": rating
+    }])
+
+    df = pd.concat([df, newrow], ignore_index=True)
+    df.to_csv(CSV_FILE, index=False)
+
 
 def shopping_list(mealnm):
-    df = pd.read_csv("meals_recipes.csv")
+    df = pd.read_csv(CSV_FILE)
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+
     meall = df[df["name"] == mealnm]
+
     if meall.empty:
         return "Recipe not found"
+
     lst = meall["ingredients"].iloc[0].split(",")
     return lst
-
 
 
 def meal_recommend(df, current_index):
@@ -53,9 +59,8 @@ def meal_recommend(df, current_index):
     return recm, next_index
 
 
-    
 def scale_recipe(meal_name, desired_persons):
-    df = pd.read_csv("meals_recipes.csv")
+    df = pd.read_csv(CSV_FILE)
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
 
     meal = df[df["name"] == meal_name]
@@ -64,8 +69,6 @@ def scale_recipe(meal_name, desired_persons):
         return ["Meal not found"]
 
     ingredients = meal.iloc[0]["ingredients"]
-
-    # Original recipe is assumed to be for 1 person
     scale_factor = desired_persons
 
     inglist = ingredients.split(",")
