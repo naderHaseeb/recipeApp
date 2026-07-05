@@ -6,4 +6,5 @@ App to track, create and recommend recipes.
 - add new recipe
 - track ingredients
 - shopping list
+- eat food
   
