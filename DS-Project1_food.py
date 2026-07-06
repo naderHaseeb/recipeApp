@@ -64,9 +64,8 @@ with st.sidebar:
             "Search",
             "View All recipe",
             "View a random recipe",
-            "Shopping List",
             "Meal Recommendation",
-            "Scale Recipe"
+            "Shopping List"
         )
     )
 
@@ -94,25 +93,30 @@ if add_radio == "Create New Recipe":
     submitted = form.form_submit_button("Add Recipe")
 
     if submitted:
-        save_meal(
-            title,
-            txt_ingredients,
-            ptime,
-            txt_instructions,
-            difficulty,
-            category,
-            rating
-        )
-
-        st.success("Recipe added successfully!")
-        st.write("### Your added recipe:")
-        st.write("**Dish Name:**", title)
-        st.write("**Ingredients:**", txt_ingredients)
-        st.write("**Preparation Time:**", ptime, "minutes")
-        st.write("**Instructions:**", txt_instructions)
-        st.write("**Difficulty:**", difficulty)
-        st.write("**Category:**", category)
-        st.write("**Rating:**", rating)
+        df = pd.read_csv("meals_recipes.csv")
+        df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+        if title.strip() == "" or txt_ingredients.strip() == "" or ptime==0 or txt_instructions.strip()=="":
+            st.error('Please complete the form', icon="🚨")
+        elif title.strip().lower() in df["name"].str.lower().values:
+            st.error('Recipe already exist', icon="🚨")
+        else:
+            save_meal(
+                title,
+                txt_ingredients,
+                ptime,
+                txt_instructions,
+                difficulty,
+                category,
+                rating )
+            st.success("Recipe added successfully!")
+            st.write("### Your added recipe:")
+            st.write("**Dish Name:**", title)
+            st.write("**Ingredients:**", txt_ingredients)
+            st.write("**Preparation Time:**", ptime, "minutes")
+            st.write("**Instructions:**", txt_instructions)
+            st.write("**Difficulty:**", difficulty)
+            st.write("**Category:**", category)
+            st.write("**Rating:**", rating)
 
 elif add_radio == "Search":
     st.subheader(" Search Recipes")
@@ -150,14 +154,6 @@ elif add_radio == "View a random recipe":
         st.dataframe(random_meal())
         st.balloons()
 
-elif add_radio == "Shopping List":
-    st.subheader("Generate Shopping List")
-    toshop = st.text_input("Search for the recipe:")
-
-    if st.button("Generate"):
-        st.dataframe(shopping_list(toshop))
-        st.balloons()
-
 elif add_radio == "Meal Recommendation":
     st.subheader("Meal Recommendation")
 
@@ -176,8 +172,8 @@ elif add_radio == "Meal Recommendation":
         else:
             st.error("No meals found in the dataset.")
 
-elif add_radio == "Scale Recipe":
-    st.subheader("Scale Ingredient Quantities")
+elif add_radio == "Shopping List":
+    st.subheader("Know What You Need")
 
     df = pd.read_csv(CSV_FILE)
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
@@ -192,10 +188,10 @@ elif add_radio == "Scale Recipe":
         value=2
     )
 
-    if st.button("Scale Recipe"):
+    if st.button("Create List"):
         scaled_ingredients = scale_recipe(selected_meal, desired_persons)
 
-        st.write("Scaled ingredients:")
+        st.write("List for your recipe:")
 
         for ingredient in scaled_ingredients:
             st.write("- " + ingredient)
