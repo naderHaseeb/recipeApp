@@ -118,8 +118,16 @@ elif add_radio == "Search":
     st.subheader(" Search Recipes")
     tosearch = st.text_input("Search for the recipe or ingredient:")
 
-    if tosearch:
-        st.dataframe(search_mealbying(tosearch))
+    if st.button("Search"):
+        if tosearch:
+            result = search_mealbying(tosearch)
+
+            if result.empty:
+                st.warning("No recipes found.")
+            else:
+                st.dataframe(result)
+        else:
+            st.warning("Please enter a recipe name or ingredient.")
 
 elif add_radio == "View All recipe":
     df = pd.read_csv(CSV_FILE)
