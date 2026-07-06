@@ -5,18 +5,21 @@ CSV_FILE = "Data/meals_recipes.csv"
 
 def random_meal():
     df = pd.read_csv(CSV_FILE)
+    df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
     randommeal = df.sample()
     return randommeal
 
 
 def search_meal(meal_name):
     df = pd.read_csv(CSV_FILE)
+    df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
     result = df[df["name"] == meal_name]
     return result
 
 
 def search_mealbying(ingredient_name):
     df = pd.read_csv(CSV_FILE)
+    df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
     condition = (
         df["ingredients"].str.contains(ingredient_name, case=False, na=False) |
         df["name"].str.contains(ingredient_name, case=False, na=False)
