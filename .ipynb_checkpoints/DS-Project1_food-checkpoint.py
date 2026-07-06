@@ -116,7 +116,7 @@ if add_radio == "Create New Recipe":
 
 elif add_radio == "Search":
     st.subheader(" Search Recipes")
-    tosearch = st.text_input("Search for the recipe:")
+    tosearch = st.text_input("Search for the recipe or ingredient:")
 
     if tosearch:
         st.dataframe(search_mealbying(tosearch))

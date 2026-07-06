@@ -17,7 +17,10 @@ def search_meal(meal_name):
 
 def search_mealbying(ingredient_name):
     df = pd.read_csv(CSV_FILE)
-    condition = df["ingredients"].str.contains(ingredient_name, case=False, na=False)
+    condition = (
+        df["ingredients"].str.contains(ingredient_name, case=False, na=False) |
+        df["name"].str.contains(ingredient_name, case=False, na=False)
+    )
     meals = df[condition]
     return meals
 
