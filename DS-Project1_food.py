@@ -277,77 +277,59 @@ elif add_radio == "Smart Chef":
 
 
 def search_external_recipes(search_term):
-    """Search for recipes using TheMealDB."""
-
     url = "https://www.themealdb.com/api/json/v1/1/search.php"
 
-    try:
-        response = requests.get(
-            url,
-            params={"s": search_term},
-            timeout=10
-        )
+    response = requests.get(
+        url,
+        params={"s": search_term},
+        timeout=10
+    )
 
-        response.raise_for_status()
-        data = response.json()
+    data = response.json()
+    meals = data.get("meals")
 
-        meals = data.get("meals")
-
-        if meals is None:
-            return pd.DataFrame()
-
-        recipes = []
-
-        for meal in meals:
-            ingredients = []
-
-            for i in range(1, 21):
-                ingredient = meal.get(f"strIngredient{i}")
-                amount = meal.get(f"strMeasure{i}")
-
-                if ingredient and ingredient.strip():
-                    amount = amount or ""
-
-                    ingredients.append(
-                        f"{amount.strip()} {ingredient.strip()}".strip()
-                    )
-
-            recipe = {
-                "name": meal.get("strMeal"),
-                "ingredients": ", ".join(ingredients),
-                "instructions": meal.get("strInstructions"),
-                "category": meal.get("strCategory"),
-                "area": meal.get("strArea"),
-                "image": meal.get("strMealThumb")
-            }
-
-            recipes.append(recipe)
-
-        return pd.DataFrame(recipes)
-
-    except requests.exceptions.RequestException:
+    if not meals:
         return pd.DataFrame()
+
+    recipes = []
+
+    for meal in meals:
+        ingredients = []
+
+        for i in range(1, 21):
+            ingredient = meal.get(f"strIngredient{i}")
+            amount = meal.get(f"strMeasure{i}")
+
+            if ingredient and ingredient.strip():
+                amount = amount or ""
+                ingredients.append(
+                    f"{amount.strip()} {ingredient.strip()}".strip()
+                )
+
+        recipes.append({
+            "name": meal.get("strMeal"),
+            "ingredients": ", ".join(ingredients),
+            "instructions": meal.get("strInstructions"),
+            "category": meal.get("strCategory"),
+            "area": meal.get("strArea"),
+            "image": meal.get("strMealThumb")
+        })
+
+    return pd.DataFrame(recipes)
 
 
 def generate_smart_recipe(ingredients, diet, api_key):
-    """Generate a recipe using Gemini."""
-
     client = genai.Client(api_key=api_key)
 
     prompt = f"""
     Create one easy recipe using these ingredients:
-
     {ingredients}
 
-    Diet preference:
+    Diet:
     {diet}
 
-    Include:
-    Recipe name
-    Preparation time
-    Difficulty
-    Ingredients
-    Instructions
+    Include recipe name, preparation time, difficulty,
+    ingredients, and instructions.
     """
 
     try:
