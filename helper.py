@@ -1,4 +1,7 @@
 import pandas as pd
+import requests
+from google import genai
+
 
 CSV_FILE = "Data/meals_recipes.csv"
 
