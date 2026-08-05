@@ -100,6 +100,72 @@ def scale_recipe(meal_name, desired_persons):
             scaled_list.append(itemi)
 
     return scaled_list
-    
+
+def search_external_recipes(search_term):
+    url = "https://www.themealdb.com/api/json/v1/1/search.php"
+
+    response = requests.get(
+        url,
+        params={"s": search_term},
+        timeout=10
+    )
+
+    data = response.json()
+    meals = data.get("meals")
+
+    if not meals:
+        return pd.DataFrame()
+
+    recipes = []
+
+    for meal in meals:
+        ingredients = []
+
+        for i in range(1, 21):
+            ingredient = meal.get(f"strIngredient{i}")
+            amount = meal.get(f"strMeasure{i}")
+
+            if ingredient and ingredient.strip():
+                amount = amount or ""
+                ingredients.append(
+                    f"{amount.strip()} {ingredient.strip()}".strip()
+                )
+
+        recipes.append({
+            "name": meal.get("strMeal"),
+            "ingredients": ", ".join(ingredients),
+            "instructions": meal.get("strInstructions"),
+            "category": meal.get("strCategory"),
+            "area": meal.get("strArea"),
+            "image": meal.get("strMealThumb")
+        })
+
+    return pd.DataFrame(recipes)
+
+
+def generate_smart_recipe(ingredients, diet, api_key):
+    client = genai.Client(api_key=api_key)
+
+    prompt = f"""
+    Create one easy recipe using these ingredients:
+    {ingredients}
+
+    Diet:
+    {diet}
+
+    Include recipe name, preparation time, difficulty,
+    ingredients, and instructions.
+    """
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        return response.text
+
+    except Exception as error:
+        return f"Error: {error}"
     
     
